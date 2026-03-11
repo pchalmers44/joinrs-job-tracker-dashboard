@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { NavLink, Route, Routes } from 'react-router-dom'
+import './styles/app.css'
+import AddJob from './pages/AddJob.jsx'
+import Applications from './pages/Applications.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import joinrsLogo from './assets/joinrs logo.png'
+import useJobs from './hooks/useJobs.js'
 
-function App() {
-  const [count, setCount] = useState(0)
+function getNavLinkClass(baseClass) {
+  return ({ isActive }) => (isActive ? `${baseClass} active` : baseClass)
+}
 
+function Layout({ children }) {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="appShell">
+      <header className="appHeader">
+        <div className="headerInner">
+          <div className="brand">
+            <img className="brandLogo" src={joinrsLogo} alt="Joinrs" />
+            <span className="brandName">Graduate Job Tracker</span>
+          </div>
+
+          <nav className="nav">
+            <NavLink to="/" end className={getNavLinkClass('navLink')}>
+              Dashboard
+            </NavLink>
+            <NavLink to="/applications" className={getNavLinkClass('navLink')}>
+              Applications
+            </NavLink>
+            <NavLink
+              to="/add-job"
+              className={getNavLinkClass('navLink navLinkPrimary')}
+            >
+              Add Job
+            </NavLink>
+          </nav>
+        </div>
+      </header>
+
+      <main className="appMain">{children}</main>
+    </div>
   )
 }
 
-export default App
+export default function App() {
+  const { jobs, addJob, deleteJob, updateJob } = useJobs()
+
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard jobs={jobs} />} />
+        <Route
+          path="/applications"
+          element={
+            <Applications jobs={jobs} updateJob={updateJob} deleteJob={deleteJob} />
+          }
+        />
+        <Route path="/add-job" element={<AddJob addJob={addJob} />} />
+      </Routes>
+    </Layout>
+  )
+}
